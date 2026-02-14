@@ -1,8 +1,12 @@
 import os
 import sqlite3
-import joblib
 import pandas as pd
 import streamlit as st
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+DB_PATH = os.path.join(BASE_DIR, "db", "ridewise.sqlite")
+
+st.title("🚕 RideWise Customer Churn Dashboard")
 
 # Paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
