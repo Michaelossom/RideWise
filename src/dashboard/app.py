@@ -9,6 +9,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "db", "ridewise.sqlite")
 
 MODEL_PATH = os.path.join(BASE_DIR, "models", "random_forest.joblib")
+st.caption(f"DB_PATH: {DB_PATH}")
 
 st.set_page_config(page_title="RideWise Churn Dashboard", layout="wide")
 
@@ -17,6 +18,12 @@ st.title("🚕 RideWise Customer Churn Dashboard")
 # --- Load data ---
 @st.cache_data
 def load_data():
+    @st.cache_data
+def load_data():
+    if not os.path.exists(DB_PATH):
+        st.error(f"Database not found at: {DB_PATH}")
+        st.info("Fix: push db/ridewise.sqlite to GitHub, or rebuild DB on the server.")
+        st.stop()
     conn = sqlite3.connect(DB_PATH)
     df = pd.read_sql("SELECT * FROM user_features", conn)
     metrics = pd.read_sql("SELECT * FROM model_metrics", conn)
