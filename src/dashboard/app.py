@@ -6,7 +6,8 @@ import streamlit as st
 
 # Paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-DB_PATH = os.path.join(BASE_DIR, "db", "ridewise.sqlite")
+DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "db", "ridewise.sqlite")
+
 MODEL_PATH = os.path.join(BASE_DIR, "models", "random_forest.joblib")
 
 st.set_page_config(page_title="RideWise Churn Dashboard", layout="wide")
