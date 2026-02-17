@@ -1,33 +1,32 @@
 # 🚕 RideWise Customer Churn Prediction System
 
-An end-to-end machine learning system for predicting customer churn in a ride-hailing platform.  
-The project demonstrates full-stack data science: data pipeline, feature engineering, model training, API deployment, and interactive dashboard.
+RideWise is an end-to-end machine learning system that predicts customer churn for a ride-hailing platform and provides actionable insights through an interactive dashboard and API.
+
+This project demonstrates a full production-style data science pipeline: data ingestion → feature engineering → model training → database storage → API serving → dashboard visualization → cloud deployment.
 
 ---
 
-## 📊 Project Overview
+## 🌐 Live Demo
 
-RideWise analyzes rider activity (trips, sessions, behavior) to identify users at risk of churn.  
-The system predicts churn probability and segments customers for retention strategies.
+Dashboard:  
+👉 https://sqlwge3umwssnkidh8k.streamlit.app
+
+API Docs:  
+👉 http://127.0.0.1:8000/docs (local)
+
+---
+
+## 📊 Features
+
+- Customer churn prediction (Random Forest & Logistic Regression)
+- Behavioral feature engineering (RFM, engagement, tenure)
+- Customer segmentation (Regular, Weekend, Occasional)
+- SQLite analytical data store
+- FastAPI prediction service
+- Streamlit analytics dashboard
+- Cloud deployment (Streamlit Cloud)
 
 ---
 
 ## 🧠 ML Pipeline
-
-Data → Features → Model → SQLite → FastAPI → Streamlit Dashboard
-
----
-
-## 🚀 Features
-
-- User feature engineering (RFM, behavior, engagement)
-- Customer segmentation (Regular, Weekend, Occasional)
-- Churn prediction model (Random Forest + Logistic Regression)
-- REST API for real-time predictions
-- Interactive Streamlit dashboard
-- SQLite feature store
-
----
-
-## 🏗️ Project Structure
 
