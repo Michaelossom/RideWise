@@ -180,21 +180,21 @@ st.divider()
 # -----------------------------
 st.subheader("👀 Sample Users (filtered)")
 st.dataframe(filtered.head(30), use_container_width=True)
-
 # -----------------------------
 # Prediction helpers
 # -----------------------------
 def api_predict(user_id: str):
-    res = requests.post(
-    f"{API_URL}/predict/churn",
-    json={"user_id": user_to_predict},
-    timeout=30
-)
-
-    )
-    if res.status_code != 200:
+    try:
+        res = requests.post(
+            f"{API_URL}/predict/churn",
+            json={"user_id": user_id},
+            timeout=30,
+        )
+        if res.status_code != 200:
+            return None
+        return res.json()
+    except Exception:
         return None
-    return res.json()
 
 
 # -----------------------------
@@ -203,21 +203,17 @@ def api_predict(user_id: str):
 st.divider()
 st.subheader("🚨 Top High-Risk Users (from API)")
 
-st.caption("This calls the FastAPI endpoint to compute churn probability. (Uses the tuned threshold.)")
+st.caption("Scores filtered users using the deployed model.")
 
-top_n = st.slider("How many users to score?", min_value=5, max_value=50, value=15, step=5, key="topn_score")
+top_n = st.slider("How many users to score?", 5, 50, 15, 5)
 
 if "user_id" not in filtered.columns or len(filtered) == 0:
     st.warning("No users available in the current filter.")
 else:
-    # Take a sample of user ids to score (for speed)
-    candidate_ids = filtered["user_id"].astype(str).dropna().unique().tolist()
-    candidate_ids = candidate_ids[: max(top_n * 3, top_n)]  # small buffer
-
-    if st.button("Score users", key="score_users_btn"):
+    if st.button("Score users"):
         rows = []
-        with st.spinner("Scoring users via API..."):
-            for uid in candidate_ids:
+        with st.spinner("Scoring users..."):
+            for uid in filtered["user_id"].astype(str).head(top_n * 3):
                 out = api_predict(uid)
                 if out:
                     rows.append(out)
@@ -228,7 +224,8 @@ else:
             scored = scored.sort_values("churn_probability", ascending=False).head(top_n)
             st.dataframe(scored, use_container_width=True)
         else:
-            st.error("Could not score users. Make sure API is running: py -m uvicorn src.api.main:app --reload")
+            st.error("Could not score users. API may be sleeping.")
+
 
 # -----------------------------
 # Single prediction section
@@ -237,52 +234,39 @@ st.divider()
 st.subheader("🔮 Customer Churn Prediction")
 
 user_id_options = (
-    filtered["user_id"].astype(str).dropna().unique()
+    sorted(filtered["user_id"].astype(str).dropna().unique())
     if "user_id" in filtered.columns
     else []
 )
-user_id_options = sorted(user_id_options)
 
 if len(user_id_options) == 0:
-    st.warning("No users available in the current filter. Change filters to see user IDs.")
+    st.warning("No users available.")
 else:
-    selected_user_id = st.selectbox(
-        "Choose a User ID",
-        user_id_options,
-        key="user_select",
-    )
+    selected_user_id = st.selectbox("Choose a User ID", user_id_options)
 
-    manual_user_id = st.text_input(
-        "Or type a User ID (optional)",
-        "",
-        key="manual_user_id_input",
-    )
+    manual_user_id = st.text_input("Or type a User ID (optional)", "")
 
-    user_to_predict = manual_user_id.strip() if manual_user_id.strip() else selected_user_id
+    user_to_predict = manual_user_id.strip() or selected_user_id
 
-    if st.button("Predict Churn", key="predict_btn"):
-        try:
-            data = api_predict(user_to_predict)
+    if st.button("Predict Churn"):
+        data = api_predict(user_to_predict)
 
-            if data is None:
-                st.error("User not found (or API returned an error).")
+        if not data:
+            st.error("Prediction failed. API may be sleeping.")
+        else:
+            prob = float(data.get("churn_probability", 0))
+            risk = data.get("risk_band", "Unknown")
+            threshold = float(data.get("threshold", 0.5))
+            predicted = int(data.get("predicted_churn", 0))
+
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Churn Probability", f"{prob:.2%}")
+            c2.metric("Threshold Used", f"{threshold:.2f}")
+            c3.metric("Predicted Churn", "YES" if predicted else "NO")
+
+            if risk == "High":
+                st.error(f"Risk Band: {risk}")
+            elif risk == "Medium":
+                st.warning(f"Risk Band: {risk}")
             else:
-                prob = float(data.get("churn_probability", 0))
-                risk = data.get("risk_band", "Unknown")
-                threshold = float(data.get("threshold", 0.5))
-                predicted = int(data.get("predicted_churn", 0))
-
-                m1, m2, m3 = st.columns(3)
-                m1.metric("Churn Probability", f"{prob:.2%}")
-                m2.metric("Threshold Used", f"{threshold:.2f}")
-                m3.metric("Predicted Churn", "YES" if predicted == 1 else "NO")
-
-                if risk == "High":
-                    st.error(f"Risk Band: {risk}")
-                elif risk == "Medium":
-                    st.warning(f"Risk Band: {risk}")
-                else:
-                    st.info(f"Risk Band: {risk}")
-
-        except Exception:
-            st.error(f"Prediction API not running. Start it with: py -m uvicorn src.api.main:app --reload")
+                st.info(f"Risk Band: {risk}")
