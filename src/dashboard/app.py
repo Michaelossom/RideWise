@@ -14,6 +14,7 @@ DB_PATH = os.path.join(BASE_DIR, "db", "ridewise.sqlite")
 API_URL = "https://ridewise-api.onrender.com"
 
 
+
 st.set_page_config(page_title="RideWise Dashboard", page_icon="🚕", layout="wide")
 
 
