@@ -185,17 +185,19 @@ st.dataframe(filtered.head(30), use_container_width=True)
 # Prediction helpers
 # -----------------------------
 def api_predict(user_id: str):
-    try:
-        res = requests.post(
-            f"{API_URL}/predict/churn",
-            json={"user_id": user_id},
-            timeout=30,
-        )
-        if res.status_code != 200:
-            return None
-        return res.json()
-    except Exception:
-        return None
+    for _ in range(3):
+        try:
+            res = requests.post(
+                f"{API_URL}/predict/churn",
+                json={"user_id": user_id},
+                timeout=30,
+            )
+            if res.status_code == 200:
+                return res.json()
+        except:
+            pass
+    return None
+
 
 
 # -----------------------------
