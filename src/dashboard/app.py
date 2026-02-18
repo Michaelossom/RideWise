@@ -11,7 +11,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 DB_PATH = os.path.join(BASE_DIR, "db", "ridewise.sqlite")
 
 # Local FastAPI (change if you deploy API)
-API_URL = "http://127.0.0.1:8000"
+API_URL = "https://ridewise-api.onrender.com"
+
 
 st.set_page_config(page_title="RideWise Dashboard", page_icon="🚕", layout="wide")
 
@@ -185,9 +186,11 @@ st.dataframe(filtered.head(30), use_container_width=True)
 # -----------------------------
 def api_predict(user_id: str):
     res = requests.post(
-        f"{API_URL}/predict/churn",
-        json={"user_id": user_id},
-        timeout=10,
+    f"{API_URL}/predict/churn",
+    json={"user_id": user_to_predict},
+    timeout=30
+)
+
     )
     if res.status_code != 200:
         return None
