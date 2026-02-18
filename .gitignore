@@ -8,7 +8,7 @@ venv/
 
 # VS Code
 .vscode/
-
+.idea/
 # OS
 Thumbs.db
 .DS_Store
