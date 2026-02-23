@@ -274,6 +274,7 @@ if do_predict:
                 st.info(f"Risk Band: {risk}")
 
 # -----------------------------
+# # -----------------------------
 # High risk scorer (requires DB list of users)
 # -----------------------------
 st.divider()
@@ -301,10 +302,14 @@ else:
         else:
             st.error("Could not score users. API may still be waking up. Try again in 30–60 seconds.")
 
-         st.markdown(
+# -----------------------------
+# Footer
+# -----------------------------
+st.markdown("---")
+st.markdown(
     "<div style='text-align: center; color: gray;'>"
     "Developed by <b>Angel Michael</b> | "
     "<a href='https://github.com/Michaelossom' target='_blank'>GitHub</a>"
     "</div>",
     unsafe_allow_html=True,
-)   
+)
