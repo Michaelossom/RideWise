@@ -221,7 +221,49 @@ if not df.empty:
     st.divider()
     st.subheader("👀 Sample Users (filtered)")
     st.dataframe(filtered.head(30), use_container_width=True)
+# -----------------------------
+# Feature Importance (Model Explainability)
+# -----------------------------
+st.divider()
+st.subheader("🧠 Feature Importance (Random Forest)")
 
+MODEL_PATH = os.path.join(BASE_DIR, "models", "random_forest.joblib")
+
+if not os.path.exists(MODEL_PATH):
+    st.warning(
+        "Model file not found locally in this environment. "
+        "If you're deployed, ensure models/*.joblib are included in the repo."
+    )
+else:
+    try:
+        pipe = joblib.load(MODEL_PATH)
+
+        pre = pipe.named_steps["pre"]
+        clf = pipe.named_steps["clf"]
+
+        feature_names = pre.get_feature_names_out()
+        importances = clf.feature_importances_
+
+        fi = pd.DataFrame({
+            "feature": feature_names,
+            "importance": importances
+        }).sort_values("importance", ascending=False)
+
+        top_n = st.slider("Top N features", 5, 50, 15, 5, key="fi_topn")
+        st.caption("These importances come from the trained Random Forest model.")
+
+        st.bar_chart(fi.head(top_n).set_index("feature")["importance"])
+
+        st.subheader("📈 Importance Distribution")
+        st.line_chart(
+            np.sort(fi["importance"].values)[::-1]
+        )
+
+        with st.expander("See full importance table"):
+            st.dataframe(fi, use_container_width=True)
+
+    except Exception as e:
+        st.error(f"Could not load or parse model: {e}")
 # -----------------------------
 # Predictions (works with or without DB)
 # -----------------------------
