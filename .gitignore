@@ -16,6 +16,6 @@ Thumbs.db
 # Data + artifacts (do not upload)
 data/
 db/
-models/
+# models/
 *.sqlite
-*.joblib
+# *.joblib
